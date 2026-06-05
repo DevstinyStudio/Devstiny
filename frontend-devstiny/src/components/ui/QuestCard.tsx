@@ -1,4 +1,18 @@
-import type { Quest, Difficulty } from "@/types/quest";
+import type { Difficulty } from "@/types/quest";
+
+interface QuestCardProps {
+  name: string;
+  type: string;
+  typeColor: string;
+  typeBg: string;
+  desc: string;
+  difficulty: Difficulty;
+  xp: number;
+  duration: string;
+  tag: string;
+  tagColor: string;
+  btnClass: string;
+}
 
 function DifficultyStars({ level }: { level: Difficulty }) {
   return (
@@ -24,7 +38,7 @@ export default function QuestCard({
   tag,
   tagColor,
   btnClass,
-}: Omit<Quest, "id">) {
+}: QuestCardProps) {
   return (
     <div className="pixel-panel pixel-panel-labeled flex flex-col gap-4 hover:border-rpg-gold transition-colors duration-150 group">
       <span className="pixel-panel-label">{type}</span>
