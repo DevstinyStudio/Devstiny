@@ -31,7 +31,7 @@ interface ApiBook {
 }
 
 // We need adjacent books for prev/next — fetch all books list
-interface BookListItem { slug: string; volume: string; title: string; order: number }
+interface BookListItem { slug: string; volume: string; title: string; order: number; color?: string }
 
 export default function BookPage() {
   const { slug } = useParams<{ slug: string }>();
