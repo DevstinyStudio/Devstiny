@@ -7,6 +7,9 @@ node_modules/
 # Claude Code local settings
 .claude/
 
+# Database exports
+*.sql
+
 # OS
 .DS_Store
 Thumbs.db

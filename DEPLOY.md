@@ -67,13 +67,17 @@ npx prisma generate
 
 ---
 
-## 4. Seed Data Production
+## 4. Import Data Konten
+
+Import data konten dari export database lokal (lebih lengkap dari seed script):
 
 ```bash
-# Seed data essential (costume, books, quests, forum categories, path chapters)
-# Aman dijalankan berkali-kali — menggunakan upsert, tidak menghapus data
-npx ts-node --esm prisma/seed-prod.ts
+psql "postgresql://<user>:<password>@<host>:5432/devstiny" < content-export.sql
 ```
+
+> File `content-export.sql` tidak disertakan di repo (ada di `.gitignore`). Transfer manual ke server production sebelum menjalankan perintah di atas.
+>
+> Alternatif jika tidak punya file export: jalankan `npx ts-node --esm prisma/seed-prod.ts` sebagai fallback (data lebih sedikit).
 
 ---
 
@@ -221,7 +225,7 @@ pm2 restart devstiny-web
 - [ ] `FRONTEND_URL` di backend `.env` sudah sesuai domain production
 - [ ] `NEXT_PUBLIC_API_URL` di frontend `.env.local` sudah sesuai
 - [ ] `npx prisma db push` berhasil
-- [ ] `seed-prod.ts` sudah dijalankan
+- [ ] `content-export.sql` sudah diimport (atau `seed-prod.ts` sebagai fallback)
 - [ ] Akun admin sudah dibuat via `create-admin.ts`
 - [ ] HTTPS aktif (SSL certificate terpasang)
 - [ ] Test registrasi → email verifikasi diterima
