@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import Navbar from "@/components/Navbar";
@@ -37,7 +37,7 @@ const CATEGORIES = [
   },
 ];
 
-export default function NewThreadPage() {
+function NewThreadContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [title, setTitle] = useState("");
@@ -327,5 +327,13 @@ export default function NewThreadPage() {
       </main>
       <Footer />
     </>
+  );
+}
+
+export default function NewThreadPage() {
+  return (
+    <Suspense fallback={null}>
+      <NewThreadContent />
+    </Suspense>
   );
 }
