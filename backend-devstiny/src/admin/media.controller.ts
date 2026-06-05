@@ -47,7 +47,7 @@ export class MediaController {
   @Post('upload')
   @UseInterceptors(FileInterceptor('file', { storage: memoryStorage() }))
   async uploadFile(
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFile() file: { buffer: Buffer; originalname: string; mimetype: string; size: number },
     @Body('folder') folder: string,
   ) {
     if (!file) throw new BadRequestException('No file uploaded');
