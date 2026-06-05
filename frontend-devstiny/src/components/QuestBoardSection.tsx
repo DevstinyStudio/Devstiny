@@ -25,8 +25,11 @@ export default function QuestBoardSection() {
   const [featured, setFeatured] = useState<ApiQuest[]>([]);
 
   useEffect(() => {
-    apiGet<ApiQuest[]>("/quests")
-      .then((qs) => setFeatured((qs ?? []).slice(0, 3)))
+    apiGet<{ quests: ApiQuest[] } | ApiQuest[]>("/quests?limit=3")
+      .then((res) => {
+        const list = Array.isArray(res) ? res : (res as { quests: ApiQuest[] }).quests ?? [];
+        setFeatured(list.slice(0, 3));
+      })
       .catch(() => {});
   }, []);
 
