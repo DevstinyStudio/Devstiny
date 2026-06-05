@@ -10,6 +10,11 @@ node_modules/
 # Database exports
 *.sql
 
+# Internal docs (not for public repo)
+DEPLOY.md
+TECHNICAL_SUMMARY.md
+docker-compose.yml
+
 # OS
 .DS_Store
 Thumbs.db
