@@ -15,6 +15,7 @@ Devstiny is a pixel-art RPG-themed web development learning platform. Players pr
 | Database | PostgreSQL 16 (Docker) |
 | ORM | Prisma v7 (`prisma-client` generator, `@prisma/adapter-pg`) |
 | Auth | JWT (`@nestjs/jwt`), bcryptjs |
+| Email | Resend (domain: `devstiny.com`, from: `noreply@devstiny.com`) |
 | Fonts | Press Start 2P (pixel), Inter (body) |
 
 ---
@@ -27,14 +28,16 @@ devstiny/
 ├── backend-devstiny/           # NestJS API
 │   ├── prisma/
 │   │   ├── schema.prisma
-│   │   ├── seed.ts
+│   │   ├── seed.ts             # Dev seed (dummy users + data)
+│   │   ├── seed-prod.ts        # Production seed (content only, no users)
+│   │   ├── create-admin.ts     # Create admin account from env vars
 │   │   └── migrations/
 │   ├── src/
 │   │   ├── main.ts
 │   │   ├── app.module.ts
 │   │   ├── app.controller.ts   # GET /stats, GET /costume-configs
 │   │   ├── app.service.ts
-│   │   ├── auth/               # JWT auth, guards
+│   │   ├── auth/               # JWT auth, guards, email verification, password reset
 │   │   ├── players/            # Player CRUD, progress, costumes
 │   │   ├── forum/              # Forum threads, replies, categories
 │   │   ├── admin/              # Admin-only endpoints
@@ -58,7 +61,7 @@ devstiny/
     │   │   ├── Navbar.tsx
     │   │   ├── Footer.tsx
     │   │   ├── StatsBar.tsx
-    │   │   ├── auth/            # LoginForm, RegisterForm, LoginStats
+    │   │   ├── auth/            # LoginForm, RegisterForm, ForgotPasswordForm, ResetPasswordForm, LoginStats
     │   │   ├── profile/         # ProfileDashboard
     │   │   ├── course/          # CourseSidebar, PlayerDialogue, QuizGate
     │   │   ├── forum/           # ReplyForm
@@ -129,6 +132,22 @@ devstiny/
 | color | String | Tailwind color class |
 | order | Int | Display order |
 
+### EmailVerificationToken
+| Column | Type | Notes |
+|---|---|---|
+| token | String (unique) | `crypto.randomUUID()` |
+| playerId | String (FK) | → Player (cascade delete) |
+| expiresAt | DateTime | 24 hours from creation |
+| used | Boolean | Marked true after first use |
+
+### PasswordResetToken
+| Column | Type | Notes |
+|---|---|---|
+| token | String (unique) | `crypto.randomUUID()` |
+| playerId | String (FK) | → Player (cascade delete) |
+| expiresAt | DateTime | 1 hour from creation |
+| used | Boolean | Marked true after use; previous tokens invalidated on new request |
+
 ### CostumeTier
 | Column | Type | Notes |
 |---|---|---|
@@ -150,8 +169,12 @@ devstiny/
 ### Auth
 | Method | Path | Auth | Description |
 |---|---|---|---|
-| POST | `/auth/register` | — | Register new player |
-| POST | `/auth/login` | — | Login, returns JWT |
+| POST | `/auth/register` | — | Register; sends verification email. No JWT returned until email is verified. |
+| POST | `/auth/login` | — | Login; blocked if `emailVerified = false` (error code `EMAIL_NOT_VERIFIED`) |
+| GET | `/auth/verify-email?token=` | — | Verify email; returns JWT for auto-login |
+| POST | `/auth/resend-verification` | — | Resend verification email |
+| POST | `/auth/forgot-password` | — | Send password reset email (always returns 200) |
+| POST | `/auth/reset-password` | — | Set new password using reset token (1hr expiry) |
 
 ### Players
 | Method | Path | Auth | Description |
@@ -202,12 +225,27 @@ devstiny/
 
 ## Authentication Flow
 
-1. User registers/logs in → backend returns `{ access_token, user: { id, email, username, role, costume } }`
-2. Frontend stores token in `localStorage` (`access_token`) and user in `localStorage` (`user`)
-3. `AuthContext` (root layout) reads `localStorage` on mount, then refreshes `role` and `costume` from `/players/me`
-4. All authenticated API calls send `Authorization: Bearer <token>` header
-5. `JwtAuthGuard` validates token on protected routes
-6. `AdminGuard` extends JwtAuthGuard and additionally checks `role === "ADMIN"`
+### Registration
+1. `POST /auth/register` → creates player with `emailVerified: false`, sends verification email via Resend
+2. Frontend shows "check your email" panel — no JWT issued yet
+3. User clicks link → `GET /auth/verify-email?token=` → sets `emailVerified: true`, returns JWT
+4. Frontend auto-logs in and redirects to `/path`
+
+### Login
+1. `POST /auth/login` → validates credentials
+2. If `emailVerified = false` → returns `401 EMAIL_NOT_VERIFIED`; frontend shows resend button
+3. On success → returns `{ access_token, user: { id, email, username, role, costume } }`
+4. Frontend stores token in `localStorage` (`access_token`) and user in `localStorage` (`user`)
+5. `AuthContext` reads `localStorage` on mount, refreshes `role` and `costume` from `/players/me`
+
+### Password Reset
+1. `POST /auth/forgot-password` → generates token (1hr expiry), sends email via Resend
+2. User clicks link → `/reset-password?token=`
+3. `POST /auth/reset-password` → validates token, updates `passwordHash`, marks token used
+
+### Guards
+- `JwtAuthGuard` — validates Bearer token on protected routes
+- `AdminGuard` — extends JwtAuthGuard, additionally checks `role === "ADMIN"`
 
 ---
 
@@ -298,7 +336,7 @@ npm install
 npm run dev             # http://localhost:4001 (--port 4001 set in package.json)
 ```
 
-### Default Credentials
+### Default Credentials (Dev only — from `seed.ts`)
 | Role | Email | Password |
 |---|---|---|
 | Admin | admin@devstiny.com | password123 |
@@ -308,6 +346,8 @@ npm run dev             # http://localhost:4001 (--port 4001 set in package.json
 | User | voidcaster@devstiny.com | password123 |
 | User | lyra@devstiny.com | password123 |
 
+> These users have `emailVerified: true` set directly in seed. Do NOT use `seed.ts` in production.
+
 ---
 
 ## Environment Variables
@@ -316,6 +356,8 @@ npm run dev             # http://localhost:4001 (--port 4001 set in package.json
 ```env
 DATABASE_URL=postgresql://devstiny_user:devstiny_pass@localhost:5432/devstiny
 JWT_SECRET=your-secret-key
+RESEND_API_KEY=re_xxxxxxxxxxxxxxxxxxxx
+FRONTEND_URL=http://localhost:4001
 ```
 
 ### Frontend (`frontend-devstiny/.env.local`)
