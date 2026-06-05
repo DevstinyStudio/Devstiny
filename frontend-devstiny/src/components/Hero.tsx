@@ -5,7 +5,7 @@ export default function Hero() {
     <section
       className="relative min-h-screen flex flex-col items-center justify-center text-center pt-14 overflow-hidden"
       style={{
-        backgroundImage:    "url('/bg-image4.png')",
+        backgroundImage:    "url('https://res.cloudinary.com/dnr7khgro/image/upload/devstiny/ui/bg-image4.png')",
         backgroundSize:     "cover",
         backgroundPosition: "center bottom",
         backgroundRepeat:   "no-repeat",
