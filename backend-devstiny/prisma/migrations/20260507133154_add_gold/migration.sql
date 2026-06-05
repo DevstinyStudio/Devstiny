@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Progress" ADD COLUMN     "gold" INTEGER NOT NULL DEFAULT 0;

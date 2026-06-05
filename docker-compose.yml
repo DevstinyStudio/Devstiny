@@ -1,0 +1,15 @@
+services:
+  db:
+    image: postgres:16
+    container_name: devstiny-db
+    environment:
+      POSTGRES_USER: devstiny_user
+      POSTGRES_PASSWORD: devstiny_pass
+      POSTGRES_DB: devstiny
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

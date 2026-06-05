@@ -1,0 +1,252 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Player {
+  id               String   @id @default(uuid())
+  email            String   @unique
+  username         String   @unique
+  passwordHash     String
+  role             String   @default("USER")
+  emailVerified    Boolean  @default(false)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  progress                  Progress?
+  badges                    PlayerBadge[]
+  companions                PlayerCompanion[]
+  forumThreads              ForumThread[]
+  forumReplies              ForumReply[]
+  passwordResetTokens       PasswordResetToken[]
+  emailVerificationTokens   EmailVerificationToken[]
+}
+
+model Progress {
+  id                String   @id @default(uuid())
+  playerId          String   @unique
+  player            Player   @relation(fields: [playerId], references: [id])
+
+  xp                Int      @default(0)
+  gold              Int      @default(0)
+  currentChapter    String   @default("prologue")
+  completedChapters String[] @default([])
+  completedScenes   String[] @default([])
+
+  costume           String   @default("1")
+  ownedCostumes     String[] @default([])
+  flags             Json     @default("{}")
+  choices           Json     @default("{}")
+
+  updatedAt         DateTime @updatedAt
+}
+
+model Badge {
+  id          String        @id @default(uuid())
+  key         String        @unique
+  name        String
+  description String
+
+  players     PlayerBadge[]
+}
+
+model PlayerBadge {
+  playerId    String
+  badgeId     String
+  earnedAt    DateTime @default(now())
+
+  player      Player @relation(fields: [playerId], references: [id])
+  badge       Badge  @relation(fields: [badgeId], references: [id])
+
+  @@id([playerId, badgeId])
+}
+
+model PlayerCompanion {
+  playerId     String
+  companionKey String
+  unlockedAt   DateTime @default(now())
+
+  player       Player @relation(fields: [playerId], references: [id])
+
+  @@id([playerId, companionKey])
+}
+
+model CostumeTier {
+  id        String         @id @default(uuid())
+  name      String         @unique
+  price     Int            @default(150)
+  color     String         @default("text-rpg-dim")
+  order     Int            @default(0)
+  costumes  CostumeConfig[]
+}
+
+model CostumeConfig {
+  costumeId Int         @id
+  tierId    String
+  tier      CostumeTier @relation(fields: [tierId], references: [id])
+  isFree    Boolean     @default(false)
+}
+
+model Book {
+  id          String        @id @default(uuid())
+  slug        String        @unique
+  volume      String
+  title       String
+  subtitle    String
+  author      String
+  description String
+  color       String        @default("text-rpg-text")
+  border      String        @default("border-rpg-border")
+  icon        String        @default("◈")
+  coverImage  String        @default("")
+  defaultLang String        @default("javascript")
+  status      String        @default("available")
+  order       Int           @default(0)
+  chapters    BookChapter[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+model BookChapter {
+  id       String  @id @default(uuid())
+  bookId   String
+  book     Book    @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  title    String
+  topics   String[]
+  content  String
+  example  String?
+  sections Json?
+  order    Int     @default(0)
+}
+
+model PathChapter {
+  id               String    @id @default(uuid())
+  slug             String    @unique
+  title            String
+  realm            String    @default("")
+  order            Int       @default(0)
+  isLocked         Boolean   @default(false)
+  coverImage       String    @default("")
+  description      String    @default("")
+  openingNarrative String    @default("")
+  worldContext     String    @default("")
+  archonIntro      String    @default("")
+  rewardXp         Int       @default(0)
+  rewardGold       Int       @default(0)
+  rewardBadge      String    @default("")
+  rewardTitle      String    @default("")
+  estimatedHours   Int       @default(0)
+  difficulty       String    @default("beginner")
+  skills           String[]  @default([])
+  tags             String[]  @default([])
+  npcImage         String    @default("")
+  type             String    @default("CODE")
+  typeColor        String    @default("text-rpg-purple")
+  acts             PathAct[]
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+}
+
+model PathAct {
+  id          String      @id @default(uuid())
+  chapterId   String
+  chapter     PathChapter @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  slug        String
+  title       String
+  order       Int         @default(0)
+  description String      @default("")
+  isFinalAct  Boolean     @default(false)
+  isLocked    Boolean     @default(false)
+  content     Json?
+
+  @@unique([chapterId, slug])
+}
+
+model Quest {
+  id           String   @id
+  slug         String   @unique
+  title        String
+  tier         Int      @default(1)
+  character    String   @default("ferrus")
+  loreHook     String
+  functionName String
+  starterCode  String
+  concepts     String[]
+  testCases    Json
+  rewardXp     Int      @default(75)
+  rewardGold   Int      @default(50)
+  rewardBadge  String   @default("")
+  isActive     Boolean  @default(true)
+  order        Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model ForumCategory {
+  id          String        @id @default(uuid())
+  slug        String        @unique
+  title       String
+  description String
+  gem         String
+  color       String
+  order       Int           @default(0)
+  createdAt   DateTime      @default(now())
+  threads     ForumThread[]
+}
+
+model ForumThread {
+  id           String        @id @default(uuid())
+  title        String
+  content      String
+  category     String
+  categoryData ForumCategory @relation(fields: [category], references: [slug])
+  authorId     String
+  author       Player        @relation(fields: [authorId], references: [id])
+  replies      ForumReply[]
+  views        Int           @default(0)
+  solved       Boolean       @default(false)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+model ForumReply {
+  id        String      @id @default(uuid())
+  content   String
+  threadId  String
+  thread    ForumThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    Player      @relation(fields: [authorId], references: [id])
+  likes     Int         @default(0)
+  isAnswer  Boolean     @default(false)
+  createdAt DateTime    @default(now())
+}
+
+model SiteSetting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+}
+
+model PasswordResetToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  playerId  String
+  player    Player   @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model EmailVerificationToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  playerId  String
+  player    Player   @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}

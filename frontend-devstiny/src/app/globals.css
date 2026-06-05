@@ -1,0 +1,263 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-family-pixel: var(--font-pixel);
+  --font-family-body: var(--font-body);
+  --color-rpg-bg: #0a0818;
+  --color-rpg-panel: #12102a;
+  --color-rpg-border: #3d2d8c;
+  --color-rpg-gold: #f0c040;
+  --color-rpg-gold-dark: #a07820;
+  --color-rpg-green: #40e070;
+  --color-rpg-cyan: #40d0e0;
+  --color-rpg-purple: #c060e0;
+  --color-rpg-red: #e05050;
+  --color-rpg-text: #e8e8f0;
+  --color-rpg-dim: #b4b4df;
+}
+
+/* ── Typography ────────────────────────────────────────────────────── */
+
+body {
+  font-family: var(--font-body), system-ui, sans-serif;
+  background: #0a0818;
+  color: #e8e8f0;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-pixel), monospace;
+}
+
+/* ── Animations ────────────────────────────────────────────────────── */
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-8px); }
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.15; transform: scale(0.8); }
+  50%       { opacity: 1;    transform: scale(1.2); }
+}
+
+@keyframes xp-fill {
+  from { width: 0%; }
+  to   { width: var(--xp-w, 75%); }
+}
+
+.blink      { animation: blink 1s   step-end infinite; }
+.blink-slow { animation: blink 1.6s step-end infinite; }
+.float      { animation: float 3s ease-in-out infinite; }
+
+
+/* ── Double-border NES-style panels ────────────────────────────────── */
+/*
+  Technique: outer CSS border + two inset box-shadows
+    shadow-1 (front, 4px): gap colour = same as panel bg → invisible gap
+    shadow-2 (back,  8px): border colour → shows only at 4px–8px zone
+  Result: [outer border] → [4px gap] → [4px inner border] → [content]
+*/
+
+.pixel-panel {
+  background: #12102a;
+  border: 4px solid #e8e8f0;
+  box-shadow:
+    inset 0 0 0 4px #12102a,
+    inset 0 0 0 8px #e8e8f0,
+    4px 4px 0 #000;
+  padding: 20px;
+}
+
+.pixel-panel-gold {
+  background: #12102a;
+  border: 4px solid #f0c040;
+  box-shadow:
+    inset 0 0 0 4px #12102a,
+    inset 0 0 0 8px #f0c040,
+    4px 4px 0 #000;
+  padding: 20px;
+}
+
+/* Panel with a legend-style label at the top-left corner */
+.pixel-panel-labeled {
+  position: relative;
+}
+
+.pixel-panel-label {
+  position: absolute;
+  top: -10px;
+  left: 12px;
+  background: #0a0818;   /* matches page background to "cut" through the border */
+  padding: 0 8px;
+  font-family: var(--font-pixel), monospace;
+  font-size: 8px;
+  color: #e8e8f0;
+  line-height: 1;
+}
+
+/* ── Base button ────────────────────────────────────────────────────── */
+
+.pixel-btn {
+  display: inline-block;
+  font-family: var(--font-pixel), monospace;
+  border: 3px solid #e8e8f0;
+  box-shadow: 3px 3px 0 #000;
+  cursor: pointer;
+  transition: transform 80ms step-end, box-shadow 80ms step-end;
+  user-select: none;
+}
+
+.pixel-btn:hover  { transform: translate(1px, 1px); box-shadow: 2px 2px 0 #000; }
+.pixel-btn:active { transform: translate(3px, 3px); box-shadow: 0   0   0 #000; }
+
+/* ── Button colour variants ─────────────────────────────────────────── */
+
+/* Gold / primary CTA (existing) */
+.pixel-btn-gold {
+  background: #f0c040;
+  color: #0a0818;
+  font-family: var(--font-pixel), monospace;
+  border: 3px solid #fff8d0;
+  box-shadow:
+    3px 3px 0 #000,
+    inset -3px -3px 0 #a07820,
+    inset  3px  3px 0 #ffe090;
+  cursor: pointer;
+  transition: transform 80ms step-end, box-shadow 80ms step-end;
+  user-select: none;
+}
+.pixel-btn-gold:hover  { transform: translate(1px, 1px); box-shadow: 2px 2px 0 #000, inset -3px -3px 0 #a07820, inset 3px 3px 0 #ffe090; }
+.pixel-btn-gold:active { transform: translate(3px, 3px); box-shadow: 0   0   0 #000, inset -3px -3px 0 #a07820, inset 3px 3px 0 #ffe090; }
+
+/* Primary — green */
+.pixel-btn-primary {
+  background: #22c55e;
+  color: #0a0818;
+  font-family: var(--font-pixel), monospace;
+  border: 3px solid #bbf7d0;
+  box-shadow:
+    3px 3px 0 #000,
+    inset -3px -3px 0 #15803d,
+    inset  3px  3px 0 #86efac;
+  cursor: pointer;
+  transition: transform 80ms step-end, box-shadow 80ms step-end;
+  user-select: none;
+}
+.pixel-btn-primary:hover  { transform: translate(1px, 1px); box-shadow: 2px 2px 0 #000, inset -3px -3px 0 #15803d, inset 3px 3px 0 #86efac; }
+.pixel-btn-primary:active { transform: translate(3px, 3px); box-shadow: 0   0   0 #000, inset -3px -3px 0 #15803d, inset 3px 3px 0 #86efac; }
+
+/* Success — cyan/teal */
+.pixel-btn-success {
+  background: #06b6d4;
+  color: #0a0818;
+  font-family: var(--font-pixel), monospace;
+  border: 3px solid #a5f3fc;
+  box-shadow:
+    3px 3px 0 #000,
+    inset -3px -3px 0 #0e7490,
+    inset  3px  3px 0 #67e8f9;
+  cursor: pointer;
+  transition: transform 80ms step-end, box-shadow 80ms step-end;
+  user-select: none;
+}
+.pixel-btn-success:hover  { transform: translate(1px, 1px); box-shadow: 2px 2px 0 #000, inset -3px -3px 0 #0e7490, inset 3px 3px 0 #67e8f9; }
+.pixel-btn-success:active { transform: translate(3px, 3px); box-shadow: 0   0   0 #000, inset -3px -3px 0 #0e7490, inset 3px 3px 0 #67e8f9; }
+
+/* Warning — yellow */
+.pixel-btn-warning {
+  background: #eab308;
+  color: #0a0818;
+  font-family: var(--font-pixel), monospace;
+  border: 3px solid #fef08a;
+  box-shadow:
+    3px 3px 0 #000,
+    inset -3px -3px 0 #a16207,
+    inset  3px  3px 0 #fde047;
+  cursor: pointer;
+  transition: transform 80ms step-end, box-shadow 80ms step-end;
+  user-select: none;
+}
+.pixel-btn-warning:hover  { transform: translate(1px, 1px); box-shadow: 2px 2px 0 #000, inset -3px -3px 0 #a16207, inset 3px 3px 0 #fde047; }
+.pixel-btn-warning:active { transform: translate(3px, 3px); box-shadow: 0   0   0 #000, inset -3px -3px 0 #a16207, inset 3px 3px 0 #fde047; }
+
+/* Error — red */
+.pixel-btn-error {
+  background: #ef4444;
+  color: #fff;
+  font-family: var(--font-pixel), monospace;
+  border: 3px solid #fecaca;
+  box-shadow:
+    3px 3px 0 #000,
+    inset -3px -3px 0 #991b1b,
+    inset  3px  3px 0 #fca5a5;
+  cursor: pointer;
+  transition: transform 80ms step-end, box-shadow 80ms step-end;
+  user-select: none;
+}
+.pixel-btn-error:hover  { transform: translate(1px, 1px); box-shadow: 2px 2px 0 #000, inset -3px -3px 0 #991b1b, inset 3px 3px 0 #fca5a5; }
+.pixel-btn-error:active { transform: translate(3px, 3px); box-shadow: 0   0   0 #000, inset -3px -3px 0 #991b1b, inset 3px 3px 0 #fca5a5; }
+
+/* ── XP progress bar ────────────────────────────────────────────────── */
+
+.xp-bar-fill {
+  animation: xp-fill 1.5s ease-out forwards;
+  height: 100%;
+}
+
+/* ── CRT scanlines ──────────────────────────────────────────────────── */
+
+.scanlines {
+  position: relative;
+}
+
+.scanlines::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    180deg,
+    transparent          0px,
+    transparent          3px,
+    rgba(0,0,0,0.10)     3px,
+    rgba(0,0,0,0.10)     4px
+  );
+  pointer-events: none;
+  z-index: 9998;
+}
+
+/* ── Text effects ───────────────────────────────────────────────────── */
+
+.text-glow-gold  { text-shadow: 0 0 16px #f0c040, 0 0 32px rgba(240,192,64,.4),  2px 2px 0 #000; }
+.text-glow-cyan  { text-shadow: 0 0 16px #40d0e0, 0 0 32px rgba(64,208,224,.4),  2px 2px 0 #000; }
+.text-glow-green { text-shadow: 0 0 16px #40e070, 2px 2px 0 #000; }
+.text-pixel-shadow { text-shadow: 2px 2px 0 #000; }
+
+/* ── Pixel dividers ─────────────────────────────────────────────────── */
+
+.pixel-divider {
+  height: 4px;
+  background: repeating-linear-gradient(
+    90deg, #3d2d8c 0, #3d2d8c 8px, transparent 8px, transparent 16px
+  );
+}
+
+.pixel-divider-gold {
+  height: 4px;
+  background: repeating-linear-gradient(
+    90deg, #f0c040 0, #f0c040 8px, transparent 8px, transparent 16px
+  );
+}
+
+/* ── Star field ─────────────────────────────────────────────────────── */
+
+.star {
+  position: absolute;
+  background: #fff;
+  animation: twinkle var(--star-dur, 2s) step-end infinite;
+  animation-delay: var(--star-delay, 0s);
+}
