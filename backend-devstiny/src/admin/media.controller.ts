@@ -3,72 +3,79 @@ import {
   UploadedFile, UseInterceptors, UseGuards, BadRequestException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { existsSync, readdirSync, unlinkSync, mkdirSync } from 'fs';
-import { join, resolve, normalize } from 'path';
+import { memoryStorage } from 'multer';
+import { v2 as cloudinary } from 'cloudinary';
 import { AdminGuard } from '../auth/admin.guard.js';
 
-const PUBLIC_DIR = resolve(process.cwd(), '..', 'frontend-devstiny', 'public');
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key:    process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 const IMAGE_EXT = /\.(png|jpg|jpeg|gif|svg|webp)$/i;
+const FOLDER_PREFIX = 'devstiny';
 
-function safeFolder(folder: string): string {
+function validFolder(folder: string): string {
   if (!folder || /[./\\]/.test(folder)) throw new BadRequestException('Invalid folder name');
-  const abs = normalize(join(PUBLIC_DIR, folder));
-  if (!abs.startsWith(PUBLIC_DIR)) throw new BadRequestException('Invalid folder name');
-  return abs;
+  return folder;
 }
 
 @Controller('admin/media')
 @UseGuards(AdminGuard)
 export class MediaController {
   @Get('files')
-  listFiles(@Query('folder') folder: string) {
-    const dir = safeFolder(folder);
-    if (!existsSync(dir)) return { files: [] };
-    const files = readdirSync(dir)
-      .filter((f) => IMAGE_EXT.test(f))
-      .sort()
-      .map((name) => ({ name, path: `/${folder}/${name}` }));
-    return { files };
+  async listFiles(@Query('folder') folder: string) {
+    validFolder(folder);
+    try {
+      const result = await cloudinary.api.resources({
+        type: 'upload',
+        prefix: `${FOLDER_PREFIX}/${folder}/`,
+        max_results: 500,
+        resource_type: 'image',
+      });
+      const files = (result.resources as { public_id: string; secure_url: string; format: string }[]).map((r) => ({
+        name: r.public_id.split('/').pop() + '.' + r.format,
+        path: r.secure_url,
+      }));
+      return { files };
+    } catch {
+      return { files: [] };
+    }
   }
 
   @Post('upload')
-  @UseInterceptors(
-    FileInterceptor('file', {
-      storage: diskStorage({
-        destination: (req, _file, cb) => {
-          const folder = req.body?.folder as string | undefined;
-          if (!folder || /[./\\]/.test(folder)) return cb(new Error('Invalid folder'), '');
-          const dir = join(PUBLIC_DIR, folder);
-          mkdirSync(dir, { recursive: true });
-          cb(null, dir);
-        },
-        filename: (_req, file, cb) => cb(null, file.originalname),
-      }),
-      fileFilter: (_req, file, cb) => {
-        IMAGE_EXT.test(file.originalname) ? cb(null, true) : cb(new Error('Only image files allowed'), false);
-      },
-    }),
-  )
-  uploadFile(
-    @UploadedFile() file: { originalname: string; filename: string; path: string; size: number },
+  @UseInterceptors(FileInterceptor('file', { storage: memoryStorage() }))
+  async uploadFile(
+    @UploadedFile() file: Express.Multer.File,
     @Body('folder') folder: string,
   ) {
     if (!file) throw new BadRequestException('No file uploaded');
-    return { name: file.originalname, path: `/${folder}/${file.originalname}` };
+    if (!IMAGE_EXT.test(file.originalname)) throw new BadRequestException('Only image files allowed');
+    validFolder(folder);
+
+    const publicId = `${FOLDER_PREFIX}/${folder}/${file.originalname.replace(/\.[^/.]+$/, '')}`;
+
+    const result = await new Promise<{ secure_url: string }>((resolve, reject) => {
+      cloudinary.uploader.upload_stream(
+        { public_id: publicId, overwrite: true, resource_type: 'image' },
+        (error, res) => (error ? reject(error) : resolve(res!)),
+      ).end(file.buffer);
+    });
+
+    return { name: file.originalname, path: result.secure_url };
   }
 
   @Delete('files')
-  deleteFile(
+  async deleteFile(
     @Query('folder') folder: string,
     @Query('name') name: string,
   ) {
-    if (!name || IMAGE_EXT.test(name) === false) throw new BadRequestException('Invalid file name');
-    const dir  = safeFolder(folder);
-    const path = join(dir, name);
-    if (!existsSync(path)) throw new BadRequestException('File not found');
-    unlinkSync(path);
+    if (!name || !IMAGE_EXT.test(name)) throw new BadRequestException('Invalid file name');
+    validFolder(folder);
+
+    const publicId = `${FOLDER_PREFIX}/${folder}/${name.replace(/\.[^/.]+$/, '')}`;
+    await cloudinary.uploader.destroy(publicId, { resource_type: 'image' });
     return { success: true };
   }
 }
