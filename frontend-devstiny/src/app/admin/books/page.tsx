@@ -9,6 +9,7 @@ interface AdminBook {
   author: string; description: string; color: string; border: string;
   icon: string; defaultLang: string; status: string; order: number;
   chapters: { id: string; title: string; order: number }[];
+  [key: string]: unknown;
 }
 
 const STATUS_COLOR = { available: "#40e070", "coming-soon": "#b4b4df" };
