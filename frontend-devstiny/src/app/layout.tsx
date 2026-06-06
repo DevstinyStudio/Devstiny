@@ -18,21 +18,38 @@ const inter = Inter({
   display: "swap",
 });
 
+const BASE_METADATA: Metadata = {
+  metadataBase: new URL("https://devstiny.com"),
+  title: {
+    template: "%s | Devstiny",
+    default:  "Devstiny — Learn Web Development Through RPG Adventure",
+  },
+  description: "Master HTML, CSS, and JavaScript through an immersive pixel art RPG. Free to play.",
+  openGraph: {
+    type:      "website",
+    url:       "https://devstiny.com",
+    siteName:  "Devstiny",
+    images:    [{ url: "/og-image.png", width: 1200, height: 630 }],
+  },
+  twitter: {
+    card:   "summary_large_image",
+    images: ["/og-image.png"],
+  },
+  icons: { icon: "/favicon.ico" },
+};
+
 export async function generateMetadata(): Promise<Metadata> {
   try {
     const res = await fetch(`${API}/settings`, { next: { revalidate: 60 } });
     const s   = await res.json() as Record<string, string>;
     return {
-      title:       s.site_title       ?? "Devstiny",
-      description: s.site_description ?? "",
+      ...BASE_METADATA,
+      ...(s.site_title       ? { title: { template: "%s | Devstiny", default: s.site_title } } : {}),
+      ...(s.site_description ? { description: s.site_description } : {}),
       icons: { icon: s.site_favicon ?? "/favicon.ico" },
     };
   } catch {
-    return {
-      title:       "Devstiny — Level Up Your Coding Skills",
-      description: "The pixel-art RPG platform for learning to code. Complete quests, earn XP, and master programming.",
-      icons: { icon: "/favicon.ico" },
-    };
+    return BASE_METADATA;
   }
 }
 
