@@ -5,7 +5,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow:    ["/"],
-      disallow: ["/admin/", "/path/", "/quests/", "/books/", "/shop/", "/forum/"],
+      disallow: ["/admin/", "/path/", "/quests/", "/shop/", "/forum/"],
     },
     sitemap: "https://devstiny.com/sitemap.xml",
   };
