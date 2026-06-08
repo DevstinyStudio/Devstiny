@@ -6,7 +6,6 @@ import Image from "next/image";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { apiGet } from "@/lib/api";
-import { useAuth } from "@/context/AuthContext";
 
 interface ApiBook {
   id: string; slug: string; volume: string; title: string; subtitle: string;
@@ -16,9 +15,6 @@ interface ApiBook {
 }
 
 export default function BooksPage() {
-  const { user, ready } = useAuth();
-  const isLoggedIn = ready && !!user;
-
   const [books,   setBooks]   = useState<ApiBook[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -87,7 +83,7 @@ export default function BooksPage() {
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {available.map((vol) => (
-                        <Link key={vol.id} href={isLoggedIn ? `/books/${vol.slug}` : `/login?redirect=/books/${vol.slug}`}
+                        <Link key={vol.id} href={`/books/${vol.slug}`}
                           className="pixel-panel pixel-panel-labeled flex flex-col gap-4 no-underline group hover:border-rpg-gold transition-colors">
                           <span className="pixel-panel-label" style={{ fontFamily: "var(--font-pixel)", fontSize: 7 }}>{vol.volume}</span>
                           <div className="flex items-start gap-4 mt-2">
