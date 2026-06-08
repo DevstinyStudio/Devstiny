@@ -9,6 +9,7 @@ node_modules/
 
 # Database exports
 *.sql
+backend-devstiny/prisma/acts-export.json
 
 # Internal docs (not for public repo)
 DEPLOY.md
