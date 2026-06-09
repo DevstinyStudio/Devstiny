@@ -3,22 +3,22 @@ import type { MetadataRoute } from "next";
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
     {
-      url:             "https://devstiny.com",
+      url:             "https://www.devstiny.com",
       lastModified:    new Date(),
       changeFrequency: "weekly",
-      priority:        1.0,
+      priority:        1,
     },
     {
-      url:             "https://devstiny.com/whats-new",
+      url:             "https://www.devstiny.com/whats-new",
       lastModified:    new Date(),
       changeFrequency: "weekly",
-      priority:        0.7,
+      priority:        0.8,
     },
     {
-      url:             "https://devstiny.com/books",
+      url:             "https://www.devstiny.com/books",
       lastModified:    new Date(),
       changeFrequency: "monthly",
-      priority:        0.8,
+      priority:        0.7,
     },
   ];
 }

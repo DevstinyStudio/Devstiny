@@ -6,6 +6,7 @@ import ResetPasswordForm from "@/components/auth/ResetPasswordForm";
 export const metadata: Metadata = {
   title: "Reset Password — Devstiny",
   description: "Set a new password for your Devstiny account.",
+  robots: { index: false, follow: false },
 };
 
 export default async function ResetPasswordPage({

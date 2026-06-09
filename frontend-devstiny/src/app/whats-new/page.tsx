@@ -2,7 +2,17 @@ import type { Metadata } from "next";
 import Navbar from "@/components/Navbar";
 
 export const metadata: Metadata = {
-  title: "What's New | Devstiny",
+  title: "What's New",
+  description:
+    "Latest updates, new features, and improvements to Devstiny — the RPG coding platform.",
+  alternates: {
+    canonical: "https://www.devstiny.com/whats-new",
+  },
+  openGraph: {
+    url:         "https://www.devstiny.com/whats-new",
+    title:       "What's New | Devstiny",
+    description: "Latest updates, new features, and improvements to Devstiny — the RPG coding platform.",
+  },
 };
 
 const updates = [

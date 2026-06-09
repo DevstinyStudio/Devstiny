@@ -6,6 +6,7 @@ import ForgotPasswordForm from "@/components/auth/ForgotPasswordForm";
 export const metadata: Metadata = {
   title: "Forgot Password — Devstiny",
   description: "Reset your Devstiny account password.",
+  robots: { index: false, follow: false },
 };
 
 export default function ForgotPasswordPage() {

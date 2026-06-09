@@ -7,6 +7,7 @@ import RegisterForm from "@/components/auth/RegisterForm";
 export const metadata: Metadata = {
   title: "Create Account — Devstiny",
   description: "Begin your developer journey. Create your character and start earning XP.",
+  robots: { index: false, follow: false },
 };
 
 export default function RegisterPage() {

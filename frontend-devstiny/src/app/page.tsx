@@ -10,17 +10,33 @@ import CTASection from "@/components/CTASection";
 import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
-  title: "Home",
+  title: "Devstiny — Learn Web Development Through RPG Adventure",
   description:
-    "Master HTML, CSS, and JavaScript through an immersive pixel art RPG adventure. Complete quests, earn XP, and become a developer.",
+    "Master HTML, CSS, and JavaScript through an immersive dark fantasy RPG. Complete quests, defeat bosses, and become a real developer in The Broken Realm.",
+  alternates: {
+    canonical: "https://www.devstiny.com",
+  },
+  openGraph: {
+    url:         "https://www.devstiny.com",
+    title:       "Devstiny — Learn Web Development Through RPG Adventure",
+    description: "Master HTML, CSS, and JavaScript through an immersive dark fantasy RPG. Complete quests, defeat bosses, and become a real developer in The Broken Realm.",
+  },
 };
 
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "WebSite",
   name: "Devstiny",
-  url: "https://devstiny.com",
-  description: "Learn web development through pixel art RPG adventure",
+  url: "https://www.devstiny.com",
+  description: "Master HTML, CSS, and JavaScript through an immersive dark fantasy RPG.",
+  potentialAction: {
+    "@type": "SearchAction",
+    target: {
+      "@type": "EntryPoint",
+      urlTemplate: "https://www.devstiny.com/profile/{search_term_string}",
+    },
+    "query-input": "required name=search_term_string",
+  },
 };
 
 export default function HomePage() {

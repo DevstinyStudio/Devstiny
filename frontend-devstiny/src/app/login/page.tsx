@@ -8,6 +8,7 @@ import LoginStats from "@/components/auth/LoginStats";
 export const metadata: Metadata = {
   title: "Login — Devstiny",
   description: "Sign in to continue your developer journey.",
+  robots: { index: false, follow: false },
 };
 
 export default function LoginPage() {
