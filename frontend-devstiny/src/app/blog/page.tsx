@@ -3,7 +3,6 @@ import Link from "next/link";
 import Image from "next/image";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { BLOG_POSTS } from "@/lib/blog-posts";
 
 export const metadata: Metadata = {
   title: "The Codex",
@@ -35,15 +34,11 @@ const TAG_COLORS: Record<string, string> = {
 async function getPosts(): Promise<ApiBlogPost[]> {
   try {
     const res = await fetch(`${API}/blog`, { next: { revalidate: 60 } });
-    if (!res.ok) throw new Error("fetch failed");
-    const data = await res.json() as ApiBlogPost[];
-    if (data.length > 0) return data;
-  } catch { /* fall through to static */ }
-  return BLOG_POSTS.map((p, i) => ({
-    id: p.slug, slug: p.slug, title: p.title, excerpt: p.excerpt,
-    author: p.author, tag: p.tag, gem: p.gem, readTime: p.readTime,
-    isPublished: true, order: i,
-  }));
+    if (!res.ok) return [];
+    return await res.json() as ApiBlogPost[];
+  } catch {
+    return [];
+  }
 }
 
 export default async function BlogPage() {

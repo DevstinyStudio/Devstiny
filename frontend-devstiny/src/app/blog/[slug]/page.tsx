@@ -4,7 +4,6 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { BLOG_POSTS, getPostBySlug } from "@/lib/blog-posts";
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
 
@@ -21,23 +20,21 @@ interface ApiBlogList {
 async function getPost(slug: string): Promise<ApiBlogPost | null> {
   try {
     const res = await fetch(`${API}/blog/${slug}`, { next: { revalidate: 60 } });
-    if (!res.ok) throw new Error("not found");
+    if (!res.ok) return null;
     return await res.json() as ApiBlogPost;
   } catch {
-    const static_ = getPostBySlug(slug);
-    if (!static_) return null;
-    return { ...static_, id: static_.slug, isPublished: true, order: 0 };
+    return null;
   }
 }
 
 async function getAllPosts(): Promise<ApiBlogList[]> {
   try {
     const res = await fetch(`${API}/blog`, { next: { revalidate: 60 } });
-    if (!res.ok) throw new Error("fetch failed");
-    const data = await res.json() as ApiBlogList[];
-    if (data.length > 0) return data;
-  } catch { /* fall through */ }
-  return BLOG_POSTS.map((p, i) => ({ id: p.slug, slug: p.slug, title: p.title, order: i }));
+    if (!res.ok) return [];
+    return await res.json() as ApiBlogList[];
+  } catch {
+    return [];
+  }
 }
 
 export async function generateMetadata(
