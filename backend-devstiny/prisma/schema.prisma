@@ -225,6 +225,22 @@ model ForumReply {
   createdAt DateTime    @default(now())
 }
 
+model BlogPost {
+  id          String   @id @default(uuid())
+  slug        String   @unique
+  title       String
+  excerpt     String
+  body        Json     @default("[]")
+  author      String   @default("Elvar")
+  tag         String   @default("JAVASCRIPT")
+  gem         String   @default("/gem/gem-9.png")
+  readTime    Int      @default(5)
+  isPublished Boolean  @default(false)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
 model SiteSetting {
   key       String   @id
   value     String

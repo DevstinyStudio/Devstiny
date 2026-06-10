@@ -66,6 +66,19 @@ export async function apiGet<T>(path: string): Promise<T> {
   return data as T;
 }
 
+export async function apiDelete(path: string): Promise<void> {
+  const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
+  const res = await fetch(`${API_URL}${path}`, {
+    method: "DELETE",
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    const message = typeof data?.message === "string" ? data.message : "Delete failed.";
+    throw new Error(message);
+  }
+}
+
 export type AuthResponse = {
   access_token: string;
   user: { id: string; email: string; username: string; role: string; costume?: string };

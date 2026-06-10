@@ -9,9 +9,10 @@ import { AdminModule } from './admin/admin.module.js';
 import { QuestsModule } from './quests/quests.module.js';
 import { BooksModule } from './books/books.module.js';
 import { PathModule } from './path/path.module.js';
+import { BlogModule } from './blog/blog.module.js';
 
 @Module({
-  imports: [PrismaModule, AuthModule, PlayersModule, ForumModule, AdminModule, QuestsModule, BooksModule, PathModule],
+  imports: [PrismaModule, AuthModule, PlayersModule, ForumModule, AdminModule, QuestsModule, BooksModule, PathModule, BlogModule],
   controllers: [AppController],
   providers: [AppService],
 })

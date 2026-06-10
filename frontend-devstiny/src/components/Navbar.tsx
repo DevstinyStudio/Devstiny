@@ -10,6 +10,7 @@ const navItems = [
   { label: "PATH",   href: "/path"   },
   { label: "QUESTS", href: "/quests" },
   { label: "BOOKS",  href: "/books"  },
+  { label: "BLOG",   href: "/blog"   },
   { label: "FORUM",  href: "/forum"  },
   { label: "SHOP",   href: "/shop"   },
 ];

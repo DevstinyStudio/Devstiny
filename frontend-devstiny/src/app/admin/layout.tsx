@@ -12,6 +12,7 @@ const NAV = [
   { label: "COSTUMES",   href: "/admin/costumes",    icon: "◉" },
   { label: "QUESTS",     href: "/admin/quests",      icon: "⚔" },
   { label: "BOOKS",      href: "/admin/books",       icon: "▤" },
+  { label: "BLOG",       href: "/admin/blog",        icon: "✦" },
   { label: "PATH",       href: "/admin/path",        icon: "◆" },
   { label: "MEDIA",      href: "/admin/media",       icon: "▣" },
   { label: "SETTINGS",  href: "/admin/settings",    icon: "⚙" },

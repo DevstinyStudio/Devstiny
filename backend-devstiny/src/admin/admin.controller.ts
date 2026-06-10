@@ -7,6 +7,7 @@ import { AdminService } from './admin.service.js';
 import { QuestsService } from '../quests/quests.service.js';
 import { BooksService } from '../books/books.service.js';
 import { PathService } from '../path/path.service.js';
+import { BlogService } from '../blog/blog.service.js';
 
 @Controller('admin')
 @UseGuards(AdminGuard)
@@ -16,6 +17,7 @@ export class AdminController {
     private readonly questsService: QuestsService,
     private readonly booksService: BooksService,
     private readonly pathService: PathService,
+    private readonly blogService: BlogService,
   ) {}
 
   // ── Badges ───────────────────────────────────────────────────────────────
@@ -321,5 +323,43 @@ export class AdminController {
   @Delete('path-acts/:id')
   deletePathAct(@Param('id') id: string) {
     return this.pathService.deleteAct(id);
+  }
+
+  // ── Blog ─────────────────────────────────────────────────────────────────
+
+  @Get('blog')
+  listBlogPosts() {
+    return this.blogService.listAll();
+  }
+
+  @Get('blog/:id')
+  getBlogPost(@Param('id') id: string) {
+    return this.blogService.getById(id);
+  }
+
+  @Post('blog')
+  createBlogPost(@Body() body: {
+    slug: string; title: string; excerpt: string; body?: unknown;
+    author?: string; tag?: string; gem?: string;
+    readTime?: number; isPublished?: boolean; order?: number;
+  }) {
+    return this.blogService.create(body);
+  }
+
+  @Patch('blog/:id')
+  updateBlogPost(
+    @Param('id') id: string,
+    @Body() body: Partial<{
+      slug: string; title: string; excerpt: string; body: unknown;
+      author: string; tag: string; gem: string;
+      readTime: number; isPublished: boolean; order: number;
+    }>,
+  ) {
+    return this.blogService.update(id, body);
+  }
+
+  @Delete('blog/:id')
+  deleteBlogPost(@Param('id') id: string) {
+    return this.blogService.delete(id);
   }
 }
